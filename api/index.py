@@ -1,28 +1,35 @@
-from flask import Flask, request
+import requests
 
-app = Flask(__name__)
+# 1. Replace this with your actual Discord Webhook URL
+WEBHOOK_URL = "YOUR_DISCORD_WEBHOOK_URL_HERE"
 
-@app.route('/')
-def logger():
-    # 1. This logs their IP to your Vercel dashboard
-    user_ip = request.headers.get('x-forwarded-for', request.remote_addr)
-    print(f"!!! LOGGED IP: {user_ip}")
+# 2. This is the direct link to your photo
+IMAGE_URL = "https://www.lifeloveandsugar.com/wp-content/uploads/2014/06/Strawberry-Shortcake-Cheesecake3.jpg"
 
-    # 2. This creates the "Cake" preview when you send the link
-    return f'''
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta property="og:title" content="You have to see this cake!">
-        <meta property="og:description" content="I'm making this for the weekend.">
-        <meta property="og:image" content="https://www.lifeloveandsugar.com/wp-content/uploads/2014/06/Strawberry-Shortcake-Cheesecake3.jpg">
-        <meta property="og:type" content="website">
-        <meta property="og:image:width" content="1200">
-        <meta property="og:image:height" content="630">
-    </head>
-    <body>
-        <img src="https://www.lifeloveandsugar.com/wp-content/uploads/2014/06/Strawberry-Shortcake-Cheesecake3.jpg" style="width:100%;">
-    </body>
-    </html>
-    '''
-  
+# 3. Create the payload with an 'embed'
+# Putting the link in the 'image' field is what makes it 'show' the photo
+payload = {
+    "username": "Image Logger Bot",
+    "embeds": [
+        {
+            "title": "New Image Logged!",
+            "description": "The cheesecake photo is showing below:",
+            "color": 15277667,  # This is a pinkish color
+            "image": {
+                "url": IMAGE_URL
+            },
+            "footer": {
+                "text": "Assignment Submission"
+            }
+        }
+    ]
+}
+
+# 4. Send the request to Discord
+response = requests.post(WEBHOOK_URL, json=payload)
+
+# 5. Check if it worked
+if response.status_code == 204:
+    print("Success! Check your Discord channel.")
+else:
+    print(f"Failed to send. Error code: {response.status_code}")
